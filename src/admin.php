@@ -61,7 +61,8 @@ $sporty = $db->query("SELECT id, nazev FROM sportoviste")->fetchAll();
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <title>Admin — rezervace</title>
+    <link rel="stylesheet" href="style.css">
+    <title>SpotBook — Admin</title>
 </head>
 <body>
 <h1>Admin — správa rezervací</h1>
