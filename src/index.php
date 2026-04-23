@@ -22,8 +22,11 @@ $sporty = $stmt->fetchAll();
 <h1>Vítej, <?= htmlspecialchars($_SESSION['uzivatel_jmeno']) ?>!</h1>
 
 <nav>
-    <a href="rezervace.php">Nová rezervace</a> |
-    <a href="moje_rezervace.php">Moje rezervace</a> |
+    <a href="reservation.php">Nová rezervace</a> |
+    <a href="my_reservations.php">Moje rezervace</a> |
+    <?php if ($_SESSION['uzivatel_role'] === 'admin'): ?>
+        <a href="admin.php">Admin</a> |
+    <?php endif; ?>
     <a href="logout.php">Odhlásit se</a>
 </nav>
 
