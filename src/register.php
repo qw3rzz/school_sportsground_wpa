@@ -6,14 +6,12 @@ $chyby = [];
 $uspech = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Načti a ošetři vstupy (ochrana proti XSS)
     $jmeno    = trim(htmlspecialchars($_POST['jmeno'] ?? ''));
     $prijmeni = trim(htmlspecialchars($_POST['prijmeni'] ?? ''));
     $email    = trim(htmlspecialchars($_POST['email'] ?? ''));
     $heslo    = $_POST['heslo'] ?? '';
     $heslo2   = $_POST['heslo2'] ?? '';
 
-    // Validace
     if (empty($jmeno))    $chyby[] = 'Jméno je povinné.';
     if (empty($prijmeni)) $chyby[] = 'Příjmení je povinné.';
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $chyby[] = 'Neplatný email.';
@@ -22,21 +20,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($chyby)) {
         $db = getDB();
-
-        // Zkontroluj jestli email už existuje
         $stmt = $db->prepare("SELECT id FROM uzivatele WHERE email = ?");
         $stmt->execute([$email]);
         if ($stmt->fetch()) {
             $chyby[] = 'Tento email je již zaregistrován.';
         } else {
-            // Ulož uživatele s hashovaným heslem
             $heslo_hash = password_hash($heslo, PASSWORD_DEFAULT);
             $stmt = $db->prepare("
                 INSERT INTO uzivatele (jmeno, prijmeni, email, heslo_hash)
                 VALUES (?, ?, ?, ?)
             ");
             $stmt->execute([$jmeno, $prijmeni, $email, $heslo_hash]);
-            $uspech = 'Registrace proběhla úspěšně! Můžeš se přihlásit.';
+            $uspech = 'Registrace proběhla úspěšně!';
         }
     }
 }
@@ -68,25 +63,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <label>Jméno:
         <input type="text" name="jmeno" required
                value="<?= htmlspecialchars($_POST['jmeno'] ?? '') ?>">
-    </label><br>
+    </label><br><br>
 
     <label>Příjmení:
         <input type="text" name="prijmeni" required
                value="<?= htmlspecialchars($_POST['prijmeni'] ?? '') ?>">
-    </label><br>
+    </label><br><br>
 
     <label>Email:
         <input type="email" name="email" required
                value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
-    </label><br>
+    </label><br><br>
 
     <label>Heslo (min. 6 znaků):
         <input type="password" name="heslo" required minlength="6">
-    </label><br>
+    </label><br><br>
 
     <label>Heslo znovu:
         <input type="password" name="heslo2" required minlength="6">
-    </label><br>
+    </label><br><br>
 
     <button type="submit">Zaregistrovat se</button>
 </form>
