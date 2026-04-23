@@ -26,66 +26,82 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $chyby[] = 'Tento email je již zaregistrován.';
         } else {
             $heslo_hash = password_hash($heslo, PASSWORD_DEFAULT);
-            $stmt = $db->prepare("
-                INSERT INTO uzivatele (jmeno, prijmeni, email, heslo_hash)
-                VALUES (?, ?, ?, ?)
-            ");
+            $stmt = $db->prepare("INSERT INTO uzivatele (jmeno, prijmeni, email, heslo_hash) VALUES (?, ?, ?, ?)");
             $stmt->execute([$jmeno, $prijmeni, $email, $heslo_hash]);
             $uspech = 'Registrace proběhla úspěšně!';
         }
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <title>Registrace</title>
+    <title>SpotBook — Registrace</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1>Registrace</h1>
+<div class="grid-bg"></div>
 
-<?php if ($uspech): ?>
-    <p style="color:green"><?= $uspech ?></p>
-    <a href="login.php">Přihlásit se</a>
-<?php endif; ?>
+<div class="auth-container">
+    <div class="auth-box">
+        <div class="logo"><span class="spot">Spot</span><span class="book">Book</span></div>
+        <div class="subtitle">Rezervační systém sportovišť</div>
 
-<?php if (!empty($chyby)): ?>
-    <ul style="color:red">
-        <?php foreach ($chyby as $chyba): ?>
-            <li><?= $chyba ?></li>
-        <?php endforeach; ?>
-    </ul>
-<?php endif; ?>
+        <h2>Registrace</h2>
 
-<form method="POST" action="register.php">
-    <label>Jméno:
-        <input type="text" name="jmeno" required
-               value="<?= htmlspecialchars($_POST['jmeno'] ?? '') ?>">
-    </label><br><br>
+        <?php if ($uspech): ?>
+            <div class="success"><?= $uspech ?></div>
+            <div class="auth-link">
+                <a href="login.php">Přihlásit se →</a>
+            </div>
+        <?php else: ?>
 
-    <label>Příjmení:
-        <input type="text" name="prijmeni" required
-               value="<?= htmlspecialchars($_POST['prijmeni'] ?? '') ?>">
-    </label><br><br>
+            <?php if (!empty($chyby)): ?>
+                <div class="error-list">
+                    <ul>
+                        <?php foreach ($chyby as $chyba): ?>
+                            <li><?= $chyba ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
 
-    <label>Email:
-        <input type="email" name="email" required
-               value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
-    </label><br><br>
+            <form method="POST" action="register.php">
+                <label>Jméno
+                    <input type="text" name="jmeno" placeholder="Jan" required
+                           value="<?= htmlspecialchars($_POST['jmeno'] ?? '') ?>">
+                </label>
 
-    <label>Heslo (min. 6 znaků):
-        <input type="password" name="heslo" required minlength="6">
-    </label><br><br>
+                <label>Příjmení
+                    <input type="text" name="prijmeni" placeholder="Novák" required
+                           value="<?= htmlspecialchars($_POST['prijmeni'] ?? '') ?>">
+                </label>
 
-    <label>Heslo znovu:
-        <input type="password" name="heslo2" required minlength="6">
-    </label><br><br>
+                <label>Email
+                    <input type="email" name="email" placeholder="tvuj@email.cz" required
+                           value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+                </label>
 
-    <button type="submit">Zaregistrovat se</button>
-</form>
+                <label>Heslo (min. 6 znaků)
+                    <input type="password" name="heslo" placeholder="••••••••" required minlength="6">
+                </label>
 
-<p>Už máš účet? <a href="login.php">Přihlás se</a></p>
+                <label>Heslo znovu
+                    <input type="password" name="heslo2" placeholder="••••••••" required minlength="6">
+                </label>
+
+                <div class="divider"></div>
+
+                <button type="submit" style="width:100%">Zaregistrovat se →</button>
+            </form>
+
+            <div class="auth-link">
+                Už máš účet? <a href="login.php">Přihlásit se</a>
+            </div>
+
+        <?php endif; ?>
+    </div>
+</div>
 </body>
 </html>

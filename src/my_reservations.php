@@ -36,6 +36,7 @@ $rezervace = $stmt->fetchAll();
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
     <title>Moje rezervace</title>
 </head>
 <body>
