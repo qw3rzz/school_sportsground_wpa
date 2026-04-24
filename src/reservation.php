@@ -67,7 +67,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <title>Nová rezervace</title>
+    <link rel="stylesheet" href="style.css">
+    <title>SpotBook — Nová rezervace</title>
 </head>
 <body>
 <h1>Nová rezervace</h1>
@@ -148,5 +149,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <button type="submit">Vytvořit rezervaci</button>
 </form>
+
+<script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        let chyby = [];
+
+        // Kontrola sportoviště
+        const sportoviste = document.querySelector('select[name="sportoviste_id"]').value;
+        if (sportoviste === '') {
+            chyby.push('Vyber sportoviště.');
+        }
+
+        // Kontrola data
+        const datum = document.querySelector('input[name="datum"]').value;
+        if (datum === '') {
+            chyby.push('Vyber datum.');
+        } else {
+            const dnes = new Date().toISOString().split('T')[0];
+            if (datum < dnes) {
+                chyby.push('Datum nemůže být v minulosti.');
+            }
+        }
+
+        // Kontrola času od
+        const casOd = document.querySelector('input[name="cas_od"]:checked');
+        if (!casOd) {
+            chyby.push('Vyber čas od.');
+        }
+
+        // Kontrola času do
+        const casDo = document.querySelector('input[name="cas_do"]:checked');
+        if (!casDo) {
+            chyby.push('Vyber čas do.');
+        }
+
+        // Kontrola že čas od je před časem do
+        if (casOd && casDo && casOd.value >= casDo.value) {
+            chyby.push('Čas od musí být před časem do.');
+        }
+
+        // Kontrola souhlasu
+        const souhlas = document.querySelector('input[name="souhlas"]').checked;
+        if (!souhlas) {
+            chyby.push('Musíš souhlasit s podmínkami.');
+        }
+
+        // Zobraz chyby nebo odešli formulář
+        if (chyby.length > 0) {
+            e.preventDefault();
+
+            // Smaž staré chyby
+            const stareChyby = document.getElementById('js-chyby');
+            if (stareChyby) stareChyby.remove();
+
+            // Vytvoř nový seznam chyb
+            const div = document.createElement('div');
+            div.id = 'js-chyby';
+            div.style.color = 'red';
+
+            const ul = document.createElement('ul');
+            chyby.forEach(function(chyba) {
+                const li = document.createElement('li');
+                li.textContent = chyba;
+                ul.appendChild(li);
+            });
+
+            div.appendChild(ul);
+            document.querySelector('form').insertBefore(div, document.querySelector('form').firstChild);
+            window.scrollTo(0, 0);
+        }
+    });
+</script>
+
 </body>
 </html>
