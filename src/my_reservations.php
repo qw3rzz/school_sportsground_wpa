@@ -9,7 +9,6 @@ if (!isset($_SESSION['uzivatel_id'])) {
 
 $db = getDB();
 
-// Zrušení rezervace
 if (isset($_GET['zrusit']) && is_numeric($_GET['zrusit'])) {
     $stmt = $db->prepare("
         UPDATE rezervace SET stav = 'zrusena'
@@ -20,7 +19,6 @@ if (isset($_GET['zrusit']) && is_numeric($_GET['zrusit'])) {
     exit;
 }
 
-// Načti rezervace uživatele
 $stmt = $db->prepare("
     SELECT r.*, s.nazev as sportoviste_nazev
     FROM rezervace r
@@ -31,61 +29,119 @@ $stmt = $db->prepare("
 $stmt->execute([$_SESSION['uzivatel_id']]);
 $rezervace = $stmt->fetchAll();
 ?>
-
 <!DOCTYPE html>
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
+    <title>SpotBook — Moje rezervace</title>
     <link rel="stylesheet" href="style.css">
-    <title>Moje rezervace</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-<h1>Moje rezervace</h1>
+<div class="grid-bg"></div>
+
+<header>
+    <div>
+        <div class="logo"><span class="spot">Spot</span><span class="book">Book</span></div>
+        <p>Rezervační systém školních sportovišť</p>
+    </div>
+</header>
+
 <nav>
-    <a href="index.php">← Zpět</a> |
-    <a href="reservation.php">Nová rezervace</a> |
-    <a href="logout.php">Odhlásit se</a>
+    <a href="index.php"><i class="fa-solid fa-house"></i> Domů</a>
+    <a href="reservation.php"><i class="fa-solid fa-plus"></i> Nová rezervace</a>
+    <a href="my_reservations.php"><i class="fa-solid fa-list"></i> Moje rezervace</a>
+    <?php if ($_SESSION['uzivatel_role'] === 'admin'): ?>
+        <a href="admin.php"><i class="fa-solid fa-gear"></i> Admin</a>
+    <?php endif; ?>
+    <a href="logout.php"><i class="fa-solid fa-right-from-bracket"></i> Odhlásit se</a>
 </nav>
 
-<?php if (empty($rezervace)): ?>
-    <p>Nemáš žádné rezervace. <a href="reservation.php">Vytvoř první rezervaci</a></p>
-<?php else: ?>
-    <table border="1" cellpadding="8">
-        <thead>
-        <tr>
-            <th>Sportoviště</th>
-            <th>Datum</th>
-            <th>Čas od</th>
-            <th>Čas do</th>
-            <th>Stav</th>
-            <th>Poznámka</th>
-            <th>Akce</th>
-        </tr>
-        </thead>
-        <tbody>
-        <?php foreach ($rezervace as $r): ?>
-            <tr>
-                <td><?= htmlspecialchars($r['sportoviste_nazev']) ?></td>
-                <td><?= htmlspecialchars($r['datum']) ?></td>
-                <td><?= htmlspecialchars($r['cas_od']) ?></td>
-                <td><?= htmlspecialchars($r['cas_do']) ?></td>
-                <td><?= htmlspecialchars($r['stav']) ?></td>
-                <td><?= htmlspecialchars($r['poznamka']) ?></td>
-                <td>
-                    <?php if ($r['stav'] !== 'zrusena'): ?>
-                        <a href="my_reservations.php?zrusit=<?= $r['id'] ?>"
-                           onclick="return confirm('Opravdu chceš zrušit rezervaci?')">
-                            Zrušit
-                        </a>
-                    <?php else: ?>
-                        <span style="color:gray">Zrušeno</span>
-                    <?php endif; ?>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-        </tbody>
-    </table>
-<?php endif; ?>
+<div class="container">
+
+    <div class="res-card">
+        <div class="res-header">
+            <div class="res-header-icon">
+                <i class="fa-solid fa-list"></i>
+            </div>
+            <div>
+                <h2>Moje rezervace</h2>
+                <p>Přehled všech tvých rezervací</p>
+            </div>
+            <a href="reservation.php" class="btn" style="margin-left:auto">
+                <i class="fa-solid fa-plus"></i> Nová rezervace
+            </a>
+        </div>
+
+        <?php if (empty($rezervace)): ?>
+            <div style="padding:48px;text-align:center;color:#94a3b8">
+                <i class="fa-solid fa-calendar-xmark" style="font-size:48px;margin-bottom:16px;display:block"></i>
+                <p style="font-size:16px;font-weight:600;margin-bottom:8px">Žádné rezervace</p>
+                <p style="font-size:13px">Zatím nemáš žádné rezervace.</p>
+                <a href="reservation.php" class="btn" style="margin-top:20px">
+                    <i class="fa-solid fa-plus"></i> Vytvořit rezervaci
+                </a>
+            </div>
+        <?php else: ?>
+            <div style="padding:24px 32px">
+                <div class="rezervace-grid">
+                    <?php foreach ($rezervace as $r): ?>
+                        <div class="rezervace-item <?= $r['stav'] === 'zrusena' ? 'zrusena' : '' ?>">
+                            <div class="rezervace-item-header">
+                                <div class="rezervace-sport">
+                                    <div class="rezervace-icon">
+                                        <i class="fa-solid fa-dumbbell"></i>
+                                    </div>
+                                    <div>
+                                        <div class="rezervace-nazev"><?= htmlspecialchars($r['sportoviste_nazev']) ?></div>
+                                        <div class="rezervace-datum">
+                                            <i class="fa-solid fa-calendar"></i>
+                                            <?= htmlspecialchars($r['datum']) ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="badge badge-<?= $r['stav'] ?>">
+                                        <?php if ($r['stav'] === 'cekajici'): ?>
+                                            <i class="fa-solid fa-clock"></i> Čekající
+                                        <?php elseif ($r['stav'] === 'potvrzena'): ?>
+                                            <i class="fa-solid fa-check"></i> Potvrzená
+                                        <?php else: ?>
+                                            <i class="fa-solid fa-xmark"></i> Zrušená
+                                        <?php endif; ?>
+                                    </span>
+                            </div>
+                            <div class="rezervace-info">
+                                <div class="rezervace-info-item">
+                                    <i class="fa-solid fa-clock"></i>
+                                    <?= htmlspecialchars($r['cas_od']) ?> — <?= htmlspecialchars($r['cas_do']) ?>
+                                </div>
+                                <div class="rezervace-info-item">
+                                    <i class="fa-solid fa-users"></i>
+                                    <?= htmlspecialchars($r['pocet_osob'] ?? '—') ?> osob
+                                </div>
+                                <?php if ($r['poznamka']): ?>
+                                    <div class="rezervace-info-item">
+                                        <i class="fa-solid fa-note-sticky"></i>
+                                        <?= htmlspecialchars($r['poznamka']) ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <?php if ($r['stav'] !== 'zrusena'): ?>
+                                <div class="rezervace-footer">
+                                    <a href="my_reservations.php?zrusit=<?= $r['id'] ?>"
+                                       class="btn btn-danger"
+                                       onclick="return confirm('Opravdu chceš zrušit rezervaci?')"
+                                       style="font-size:12px;padding:8px 16px">
+                                        <i class="fa-solid fa-xmark"></i> Zrušit
+                                    </a>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
 </body>
 </html>

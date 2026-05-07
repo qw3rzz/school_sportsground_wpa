@@ -710,3 +710,100 @@ table tr:hover td { background: #f8faff; }
     font-size: 14px;
     width: auto;
 }
+
+
+/* My reservations */
+.rezervace-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+.rezervace-item {
+    background: #f8faff;
+    border: 1.5px solid #e8eaf6;
+    border-radius: 14px;
+    overflow: hidden;
+    transition: all 0.2s;
+}
+
+.rezervace-item:hover {
+    border-color: #6366f1;
+    box-shadow: 0 8px 24px rgba(99,102,241,0.1);
+    transform: translateY(-2px);
+}
+
+.rezervace-item.zrusena {
+    opacity: 0.6;
+    border-color: #fecaca;
+}
+
+.rezervace-item-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid #f1f5f9;
+    background: white;
+}
+
+.rezervace-sport {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.rezervace-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #6366f1, #ec4899);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.rezervace-nazev {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e1b4b;
+}
+
+.rezervace-datum {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.rezervace-info {
+    padding: 14px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rezervace-info-item {
+    font-size: 13px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rezervace-info-item i {
+    color: #6366f1;
+    width: 14px;
+}
+
+.rezervace-footer {
+    padding: 12px 20px;
+    border-top: 1px solid #f1f5f9;
+    background: white;
+}
