@@ -1,3 +1,7 @@
+:root {
+    color-scheme: light only;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -294,6 +298,7 @@ input[type="text"],
 input[type="email"],
 input[type="password"],
 input[type="date"],
+input[type="number"],
 select,
 textarea {
     display: block;
@@ -318,6 +323,49 @@ input:focus, select:focus, textarea:focus {
 
 input::placeholder, textarea::placeholder { color: #cbd5e1; }
 select option { background: white; color: #1e1b4b; }
+
+/* Time grid */
+.time-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.time-grid input[type="radio"] {
+    display: none;
+}
+
+.time-grid label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 18px;
+    background: white;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin: 0;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.time-grid label:hover {
+    border-color: #6366f1;
+    color: #6366f1;
+    background: #eef2ff;
+    transform: translateY(-1px);
+}
+
+.time-grid input[type="radio"]:checked + label {
+    background: linear-gradient(135deg, #6366f1, #ec4899);
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+}
 
 /* Tlačítka */
 button, .btn {
@@ -424,90 +472,7 @@ table tr:hover td { background: #f8faff; }
     margin: 24px 0;
 }
 
-/* Reservation page */
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-}
-
-.step {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-}
-
-.step-number {
-    width: 28px;
-    height: 28px;
-    background: linear-gradient(135deg, #6366f1, #ec4899);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 700;
-    color: white;
-    flex-shrink: 0;
-}
-
-.step-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: #1e1b4b;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.section-box {
-    background: #f8faff;
-    border: 1.5px solid #e8eaf6;
-    border-radius: 12px;
-    padding: 20px 24px;
-    margin-bottom: 20px;
-}
-
-.time-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.time-grid input[type="radio"] {
-    display: none;
-}
-
-.time-grid label {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 16px;
-    background: white;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #64748b;
-    cursor: pointer;
-    transition: all 0.15s;
-    margin: 0;
-    text-transform: none;
-    letter-spacing: 0;
-}
-
-.time-grid label:hover {
-    border-color: #6366f1;
-    color: #6366f1;
-    background: #eef2ff;
-}
-
-.time-grid input[type="radio"]:checked + label {
-    background: linear-gradient(135deg, #6366f1, #ec4899);
-    border-color: transparent;
-    color: white;
-}
-
+/* Souhlas */
 .souhlas-box {
     display: flex;
     align-items: center;
@@ -521,6 +486,12 @@ table tr:hover td { background: #f8faff; }
     text-transform: none;
     letter-spacing: 0;
     font-weight: 400;
+    transition: all 0.2s;
+}
+
+.souhlas-box:hover {
+    border-color: #6366f1;
+    background: #eef2ff;
 }
 
 .souhlas-box input[type="checkbox"] {
@@ -535,6 +506,9 @@ table tr:hover td { background: #f8faff; }
     font-size: 13px;
     color: #64748b;
     font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .submit-btn {
@@ -545,4 +519,194 @@ table tr:hover td { background: #f8faff; }
     letter-spacing: 1px;
     border-radius: 12px;
     justify-content: center;
+}
+
+/* Reservation card */
+.res-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 32px rgba(99,102,241,0.08);
+    border: 1px solid rgba(99,102,241,0.08);
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.res-header {
+    background: linear-gradient(135deg, #6366f1, #ec4899);
+    padding: 28px 32px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    color: white;
+}
+
+.res-header-icon {
+    width: 52px;
+    height: 52px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.res-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    border: none;
+    padding: 0;
+    margin: 0 0 4px 0;
+}
+
+.res-header p {
+    color: rgba(255,255,255,0.7);
+    font-size: 13px;
+}
+
+.res-steps {
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.res-step {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.res-step-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1e1b4b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.res-step-num {
+    width: 26px;
+    height: 26px;
+    background: linear-gradient(135deg, #6366f1, #ec4899);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+}
+
+/* Sportoviště kartičky */
+.res-sport-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.res-sport-option input[type="radio"] {
+    display: none;
+}
+
+.res-sport-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 16px;
+    background: #f8faff;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.res-sport-card i {
+    font-size: 28px;
+    color: #94a3b8;
+    transition: all 0.2s;
+}
+
+.res-sport-card span {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e1b4b;
+}
+
+.res-sport-card small {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.res-sport-card:hover {
+    border-color: #6366f1;
+    background: #eef2ff;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(99,102,241,0.12);
+}
+
+.res-sport-card:hover i { color: #6366f1; }
+
+.res-sport-option input[type="radio"]:checked + .res-sport-card {
+    border-color: #6366f1;
+    background: linear-gradient(135deg, #eef2ff, #fdf2f8);
+    box-shadow: 0 4px 16px rgba(99,102,241,0.2);
+}
+
+.res-sport-option input[type="radio"]:checked + .res-sport-card i {
+    color: #6366f1;
+}
+
+/* Row */
+.res-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.res-label {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    gap: 6px;
+}
+
+.res-label input {
+    margin-top: 0;
+}
+
+/* Footer */
+.res-footer {
+    padding: 24px 32px;
+    background: #f8faff;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.res-footer .souhlas-box {
+    margin: 0;
+    background: white;
+    flex: 1;
+}
+
+.res-footer .submit-btn {
+    flex-shrink: 0;
+    padding: 14px 32px;
+    font-size: 14px;
+    width: auto;
 }
