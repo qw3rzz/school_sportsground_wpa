@@ -11,7 +11,7 @@ $chyby = [];
 $uspech = '';
 
 $db = getDB();
-$sporty = $db->query("SELECT id, nazev FROM sportoviste WHERE aktivni = 1")->fetchAll();
+$sporty = $db->query("SELECT id, nazev, kapacita FROM sportoviste WHERE aktivni = 1")->fetchAll();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sportoviste_id = (int)($_POST['sportoviste_id'] ?? 0);
@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cas_od         = trim($_POST['cas_od'] ?? '');
     $cas_do         = trim($_POST['cas_do'] ?? '');
     $poznamka       = trim(htmlspecialchars($_POST['poznamka'] ?? ''));
+    $pocet_osob     = (int)($_POST['pocet_osob'] ?? 1);
     $souhlas        = isset($_POST['souhlas']);
 
     if ($sportoviste_id === 0)   $chyby[] = 'Vyber sportoviště.';
@@ -26,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($cas_od))          $chyby[] = 'Vyber čas od.';
     if (empty($cas_do))          $chyby[] = 'Vyber čas do.';
     if ($cas_od >= $cas_do)      $chyby[] = 'Čas od musí být před časem do.';
+    if ($pocet_osob < 1 || $pocet_osob > 30) $chyby[] = 'Počet osob musí být mezi 1 a 30.';
     if (!$souhlas)               $chyby[] = 'Musíš souhlasit s podmínkami.';
     if (!empty($datum) && strtotime($datum) < strtotime('today')) $chyby[] = 'Datum nemůže být v minulosti.';
 
@@ -44,8 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $chyby[] = 'Tento termín je již obsazený. Vyber jiný čas.';
         } else {
             $stmt = $db->prepare("
-                INSERT INTO rezervace (uzivatel_id, sportoviste_id, datum, cas_od, cas_do, poznamka)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO rezervace (uzivatel_id, sportoviste_id, datum, cas_od, cas_do, poznamka, pocet_osob)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             ");
             $stmt->execute([
                     $_SESSION['uzivatel_id'],
@@ -53,7 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $datum,
                     $cas_od,
                     $cas_do,
-                    $poznamka
+                    $poznamka,
+                    $pocet_osob
             ]);
             $uspech = 'Rezervace byla úspěšně vytvořena!';
         }
@@ -117,13 +120,13 @@ $casy = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00'
 
         <form method="POST" action="reservation.php">
 
-            <!-- Krok 1 — Sportoviště a datum -->
+            <!-- Krok 1 -->
             <div class="section-box">
                 <div class="step">
                     <div class="step-number">1</div>
-                    <div class="step-title">Vyber sportoviště a datum</div>
+                    <div class="step-title">Vyber sportoviště, datum a počet osob</div>
                 </div>
-                <div class="form-grid" style="margin-top:16px">
+                <div class="form-grid">
                     <label>Sportoviště
                         <select name="sportoviste_id" required>
                             <option value="">-- Vyber sportoviště --</option>
@@ -141,10 +144,16 @@ $casy = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00'
                                min="<?= date('Y-m-d') ?>"
                                value="<?= htmlspecialchars($_POST['datum'] ?? '') ?>">
                     </label>
+
+                    <label>Počet osob
+                        <input type="number" name="pocet_osob" required
+                               min="1" max="30"
+                               value="<?= htmlspecialchars($_POST['pocet_osob'] ?? '1') ?>">
+                    </label>
                 </div>
             </div>
 
-            <!-- Krok 2 — Čas od -->
+            <!-- Krok 2 -->
             <div class="section-box">
                 <div class="step">
                     <div class="step-number">2</div>
@@ -152,7 +161,8 @@ $casy = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00'
                 </div>
                 <div class="time-grid">
                     <?php foreach ($casy as $cas): ?>
-                        <input type="radio" name="cas_od" id="od_<?= str_replace(':', '', $cas) ?>"
+                        <input type="radio" name="cas_od"
+                               id="od_<?= str_replace(':', '', $cas) ?>"
                                value="<?= $cas ?>"
                                 <?= ($_POST['cas_od'] ?? '') === $cas ? 'checked' : '' ?> required>
                         <label for="od_<?= str_replace(':', '', $cas) ?>"><?= $cas ?></label>
@@ -160,7 +170,7 @@ $casy = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00'
                 </div>
             </div>
 
-            <!-- Krok 3 — Čas do -->
+            <!-- Krok 3 -->
             <div class="section-box">
                 <div class="step">
                     <div class="step-number">3</div>
@@ -168,7 +178,8 @@ $casy = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00'
                 </div>
                 <div class="time-grid">
                     <?php foreach ($casy as $cas): ?>
-                        <input type="radio" name="cas_do" id="do_<?= str_replace(':', '', $cas) ?>"
+                        <input type="radio" name="cas_do"
+                               id="do_<?= str_replace(':', '', $cas) ?>"
                                value="<?= $cas ?>"
                                 <?= ($_POST['cas_do'] ?? '') === $cas ? 'checked' : '' ?> required>
                         <label for="do_<?= str_replace(':', '', $cas) ?>"><?= $cas ?></label>
@@ -176,13 +187,13 @@ $casy = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00'
                 </div>
             </div>
 
-            <!-- Krok 4 — Poznámka -->
+            <!-- Krok 4 -->
             <div class="section-box">
                 <div class="step">
                     <div class="step-number">4</div>
                     <div class="step-title">Poznámka (nepovinné)</div>
                 </div>
-                <textarea name="poznamka" rows="3" style="margin-top:12px"
+                <textarea name="poznamka" rows="3"
                           placeholder="Napiš poznámku k rezervaci..."><?= htmlspecialchars($_POST['poznamka'] ?? '') ?></textarea>
             </div>
 
@@ -215,6 +226,9 @@ $casy = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00'
             const dnes = new Date().toISOString().split('T')[0];
             if (datum < dnes) chyby.push('Datum nemůže být v minulosti.');
         }
+
+        const pocetOsob = parseInt(document.querySelector('input[name="pocet_osob"]').value);
+        if (!pocetOsob || pocetOsob < 1 || pocetOsob > 30) chyby.push('Počet osob musí být mezi 1 a 30.');
 
         const casOd = document.querySelector('input[name="cas_od"]:checked');
         if (!casOd) chyby.push('Vyber čas od.');
