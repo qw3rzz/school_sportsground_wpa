@@ -48,13 +48,19 @@ $rezervace = $stmt->fetchAll();
 </header>
 
 <nav>
-    <a href="index.php"><i class="fa-solid fa-house"></i> Domů</a>
-    <a href="reservation.php"><i class="fa-solid fa-plus"></i> Nová rezervace</a>
-    <a href="my_reservations.php"><i class="fa-solid fa-list"></i> Moje rezervace</a>
-    <?php if ($_SESSION['uzivatel_role'] === 'admin'): ?>
-        <a href="admin.php"><i class="fa-solid fa-gear"></i> Admin</a>
-    <?php endif; ?>
-    <a href="logout.php"><i class="fa-solid fa-right-from-bracket"></i> Odhlásit se</a>
+    <div class="nav-left">
+        <a href="index.php"><i class="fa-solid fa-house"></i> Domů</a>
+        <a href="reservation.php"><i class="fa-solid fa-plus"></i> Nová rezervace</a>
+        <a href="my_reservations.php"><i class="fa-solid fa-list"></i> Moje rezervace</a>
+        <?php if ($_SESSION['uzivatel_role'] === 'admin'): ?>
+            <a href="admin.php"><i class="fa-solid fa-gear"></i> Admin</a>
+        <?php endif; ?>
+    </div>
+    <div class="nav-right">
+        <a href="logout.php" class="nav-logout">
+            <i class="fa-solid fa-right-from-bracket"></i> Odhlásit se
+        </a>
+    </div>
 </nav>
 
 <div class="container">
