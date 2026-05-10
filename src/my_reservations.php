@@ -28,6 +28,10 @@ $stmt = $db->prepare("
 ");
 $stmt->execute([$_SESSION['uzivatel_id']]);
 $rezervace = $stmt->fetchAll();
+
+// Rozděl na aktivní a zrušené
+$aktivni = array_filter($rezervace, fn($r) => $r['stav'] !== 'zrusena');
+$zrusene = array_filter($rezervace, fn($r) => $r['stav'] === 'zrusena');
 ?>
 <!DOCTYPE html>
 <html lang="cs">
@@ -72,7 +76,7 @@ $rezervace = $stmt->fetchAll();
             </div>
             <div>
                 <h2>Moje rezervace</h2>
-                <p>Přehled všech tvých rezervací</p>
+                <p>Aktivní: <?= count($aktivni) ?> &bull; Zrušené: <?= count($zrusene) ?></p>
             </div>
             <a href="reservation.php" class="btn" style="margin-left:auto">
                 <i class="fa-solid fa-plus"></i> Nová rezervace
@@ -89,63 +93,111 @@ $rezervace = $stmt->fetchAll();
                 </a>
             </div>
         <?php else: ?>
-            <div style="padding:24px 32px">
-                <div class="rezervace-grid">
-                    <?php foreach ($rezervace as $r): ?>
-                        <div class="rezervace-item <?= $r['stav'] === 'zrusena' ? 'zrusena' : '' ?>">
-                            <div class="rezervace-item-header">
-                                <div class="rezervace-sport">
-                                    <div class="rezervace-icon">
-                                        <i class="fa-solid fa-dumbbell"></i>
-                                    </div>
-                                    <div>
-                                        <div class="rezervace-nazev"><?= htmlspecialchars($r['sportoviste_nazev']) ?></div>
-                                        <div class="rezervace-datum">
-                                            <i class="fa-solid fa-calendar"></i>
-                                            <?= htmlspecialchars($r['datum']) ?>
+
+            <!-- Aktivní rezervace -->
+            <?php if (!empty($aktivni)): ?>
+                <div style="padding:24px 32px 0">
+                    <div class="section-title">
+                        <i class="fa-solid fa-calendar-check" style="color:#6366f1"></i>
+                        Aktivní rezervace
+                    </div>
+                    <div class="rezervace-grid">
+                        <?php foreach ($aktivni as $r): ?>
+                            <div class="rezervace-item">
+                                <div class="rezervace-item-header">
+                                    <div class="rezervace-sport">
+                                        <div class="rezervace-icon">
+                                            <i class="fa-solid fa-dumbbell"></i>
+                                        </div>
+                                        <div>
+                                            <div class="rezervace-nazev"><?= htmlspecialchars($r['sportoviste_nazev']) ?></div>
+                                            <div class="rezervace-datum">
+                                                <i class="fa-solid fa-calendar"></i>
+                                                <?= htmlspecialchars($r['datum']) ?>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <span class="badge badge-<?= $r['stav'] ?>">
+                                    <span class="badge badge-<?= $r['stav'] ?>">
                                         <?php if ($r['stav'] === 'cekajici'): ?>
                                             <i class="fa-solid fa-clock"></i> Čekající
-                                        <?php elseif ($r['stav'] === 'potvrzena'): ?>
-                                            <i class="fa-solid fa-check"></i> Potvrzená
                                         <?php else: ?>
-                                            <i class="fa-solid fa-xmark"></i> Zrušená
+                                            <i class="fa-solid fa-check"></i> Potvrzená
                                         <?php endif; ?>
                                     </span>
-                            </div>
-                            <div class="rezervace-info">
-                                <div class="rezervace-info-item">
-                                    <i class="fa-solid fa-clock"></i>
-                                    <?= htmlspecialchars($r['cas_od']) ?> — <?= htmlspecialchars($r['cas_do']) ?>
                                 </div>
-                                <div class="rezervace-info-item">
-                                    <i class="fa-solid fa-users"></i>
-                                    <?= htmlspecialchars($r['pocet_osob'] ?? '—') ?> osob
-                                </div>
-                                <?php if ($r['poznamka']): ?>
+                                <div class="rezervace-info">
                                     <div class="rezervace-info-item">
-                                        <i class="fa-solid fa-note-sticky"></i>
-                                        <?= htmlspecialchars($r['poznamka']) ?>
+                                        <i class="fa-solid fa-clock"></i>
+                                        <?= htmlspecialchars($r['cas_od']) ?> — <?= htmlspecialchars($r['cas_do']) ?>
                                     </div>
-                                <?php endif; ?>
-                            </div>
-                            <?php if ($r['stav'] !== 'zrusena'): ?>
+                                    <div class="rezervace-info-item">
+                                        <i class="fa-solid fa-users"></i>
+                                        <?= htmlspecialchars($r['pocet_osob'] ?? '—') ?> osob
+                                    </div>
+                                    <?php if ($r['poznamka']): ?>
+                                        <div class="rezervace-info-item">
+                                            <i class="fa-solid fa-note-sticky"></i>
+                                            <?= htmlspecialchars($r['poznamka']) ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
                                 <div class="rezervace-footer">
                                     <a href="my_reservations.php?zrusit=<?= $r['id'] ?>"
                                        class="btn btn-danger"
                                        onclick="return confirm('Opravdu chceš zrušit rezervaci?')"
                                        style="font-size:12px;padding:8px 16px">
-                                        <i class="fa-solid fa-xmark"></i> Zrušit
+                                        <i class="fa-solid fa-xmark"></i> Zrušit rezervaci
                                     </a>
                                 </div>
-                            <?php endif; ?>
-                        </div>
-                    <?php endforeach; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
-            </div>
+            <?php endif; ?>
+
+            <!-- Zrušené rezervace -->
+            <?php if (!empty($zrusene)): ?>
+                <div style="padding:24px 32px">
+                    <div class="section-title" style="color:#ef4444">
+                        <i class="fa-solid fa-xmark" style="color:#ef4444"></i>
+                        Zrušené rezervace
+                    </div>
+                    <div class="rezervace-grid">
+                        <?php foreach ($zrusene as $r): ?>
+                            <div class="rezervace-item zrusena">
+                                <div class="rezervace-item-header">
+                                    <div class="rezervace-sport">
+                                        <div class="rezervace-icon" style="background:#fee2e2">
+                                            <i class="fa-solid fa-dumbbell" style="color:#ef4444"></i>
+                                        </div>
+                                        <div>
+                                            <div class="rezervace-nazev"><?= htmlspecialchars($r['sportoviste_nazev']) ?></div>
+                                            <div class="rezervace-datum">
+                                                <i class="fa-solid fa-calendar"></i>
+                                                <?= htmlspecialchars($r['datum']) ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span class="badge badge-zrusena">
+                                        <i class="fa-solid fa-xmark"></i> Zrušená
+                                    </span>
+                                </div>
+                                <div class="rezervace-info">
+                                    <div class="rezervace-info-item">
+                                        <i class="fa-solid fa-clock"></i>
+                                        <?= htmlspecialchars($r['cas_od']) ?> — <?= htmlspecialchars($r['cas_do']) ?>
+                                    </div>
+                                    <div class="rezervace-info-item" style="color:#ef4444">
+                                        <i class="fa-solid fa-circle-info"></i>
+                                        Tato rezervace byla zrušena
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+
         <?php endif; ?>
     </div>
 </div>

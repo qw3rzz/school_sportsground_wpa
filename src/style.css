@@ -946,3 +946,21 @@ table tr:hover td { background: #f8faff; }
     text-transform: uppercase;
     letter-spacing: 1px;
 }
+
+.time-grid input[type="radio"]:disabled + label {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    color: #cbd5e1;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.time-grid label.disabled {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    color: #cbd5e1;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
