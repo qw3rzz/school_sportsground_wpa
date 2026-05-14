@@ -15,20 +15,20 @@ $sporty = $db->query("SELECT id, nazev, kapacita FROM sportoviste WHERE aktivni 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sportoviste_id = (int)($_POST['sportoviste_id'] ?? 0);
-    $datum          = trim($_POST['datum'] ?? '');
-    $cas_od         = trim($_POST['cas_od'] ?? '');
-    $cas_do         = trim($_POST['cas_do'] ?? '');
-    $poznamka       = trim(htmlspecialchars($_POST['poznamka'] ?? ''));
-    $pocet_osob     = (int)($_POST['pocet_osob'] ?? 1);
-    $souhlas        = isset($_POST['souhlas']);
+    $datum = trim($_POST['datum'] ?? '');
+    $cas_od = trim($_POST['cas_od'] ?? '');
+    $cas_do = trim($_POST['cas_do'] ?? '');
+    $poznamka = trim(htmlspecialchars($_POST['poznamka'] ?? ''));
+    $pocet_osob = (int)($_POST['pocet_osob'] ?? 1);
+    $souhlas = isset($_POST['souhlas']);
 
-    if ($sportoviste_id === 0)   $chyby[] = 'Vyber sportoviště.';
-    if (empty($datum))           $chyby[] = 'Vyber datum.';
-    if (empty($cas_od))          $chyby[] = 'Vyber čas od.';
-    if (empty($cas_do))          $chyby[] = 'Vyber čas do.';
-    if ($cas_od >= $cas_do)      $chyby[] = 'Čas od musí být před časem do.';
+    if ($sportoviste_id === 0) $chyby[] = 'Vyber sportoviště.';
+    if (empty($datum)) $chyby[] = 'Vyber datum.';
+    if (empty($cas_od)) $chyby[] = 'Vyber čas od.';
+    if (empty($cas_do)) $chyby[] = 'Vyber čas do.';
+    if ($cas_od >= $cas_do) $chyby[] = 'Čas od musí být před časem do.';
     if ($pocet_osob < 1 || $pocet_osob > 30) $chyby[] = 'Počet osob musí být mezi 1 a 30.';
-    if (!$souhlas)               $chyby[] = 'Musíš souhlasit s podmínkami.';
+    if (!$souhlas) $chyby[] = 'Musíš souhlasit s podmínkami.';
     if (!empty($datum) && strtotime($datum) < strtotime('today')) $chyby[] = 'Datum nemůže být v minulosti.';
 
     if (empty($chyby)) {
@@ -63,7 +63,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$casy = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'];
+$casy = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
+
+// Načti obsazené časy pro vybraný den a sportoviště
+$obsazene_od = [];
+$obsazene_do = [];
+if (!empty($_POST['datum']) && !empty($_POST['sportoviste_id'])) {
+    $stmt = $db->prepare("
+        SELECT cas_od, cas_do FROM rezervace
+        WHERE sportoviste_id = ?
+        AND datum = ?
+        AND stav != 'zrusena'
+    ");
+    $stmt->execute([$_POST['sportoviste_id'], $_POST['datum']]);
+    $rezervovane = $stmt->fetchAll();
+    foreach ($rezervovane as $rez) {
+        foreach ($casy as $cas) {
+            if ($cas >= $rez['cas_od'] && $cas < $rez['cas_do']) {
+                $obsazene_od[] = $cas;
+            }
+            if ($cas > $rez['cas_od'] && $cas <= $rez['cas_do']) {
+                $obsazene_do[] = $cas;
+            }
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="cs">
@@ -84,6 +108,7 @@ $casy = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00'
 </header>
 
 <nav>
+<<<<<<< HEAD
     <a href="index.php"><i class="fa-solid fa-house"></i> Domů</a>
     <a href="reservation.php"><i class="fa-solid fa-plus"></i> Nová rezervace</a>
     <a href="my_reservations.php"><i class="fa-solid fa-list"></i> Moje rezervace</a>
@@ -92,6 +117,21 @@ $casy = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00'
     <?php endif; ?>
     <a href="logout.php"><i class="fa-solid fa-right-from-bracket"></i> Odhlásit se</a>
     <a href="reset_passwd.php"><i class="fa-solid fa-right-from-bracket"></i> Resetovat heslo</a>
+=======
+    <div class="nav-left">
+        <a href="index.php"><i class="fa-solid fa-house"></i> Domů</a>
+        <a href="reservation.php"><i class="fa-solid fa-plus"></i> Nová rezervace</a>
+        <a href="my_reservations.php"><i class="fa-solid fa-list"></i> Moje rezervace</a>
+        <?php if ($_SESSION['uzivatel_role'] === 'admin'): ?>
+            <a href="admin.php"><i class="fa-solid fa-gear"></i> Admin</a>
+        <?php endif; ?>
+    </div>
+    <div class="nav-right">
+        <a href="logout.php" class="nav-logout">
+            <i class="fa-solid fa-right-from-bracket"></i> Odhlásit se
+        </a>
+    </div>
+>>>>>>> 039e7b675519b4fe63d74d8acc3416a9a9de5ffe
 </nav>
 
 <div class="container">
@@ -184,11 +224,18 @@ $casy = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00'
                     </div>
                     <div class="time-grid">
                         <?php foreach ($casy as $cas): ?>
+                            <?php $disabled = in_array($cas, $obsazene_od); ?>
                             <input type="radio" name="cas_od"
                                    id="od_<?= str_replace(':', '', $cas) ?>"
                                    value="<?= $cas ?>"
-                                    <?= ($_POST['cas_od'] ?? '') === $cas ? 'checked' : '' ?> required>
-                            <label for="od_<?= str_replace(':', '', $cas) ?>"><?= $cas ?></label>
+                                    <?= ($_POST['cas_od'] ?? '') === $cas ? 'checked' : '' ?>
+                                    <?= $disabled ? 'disabled' : '' ?>
+                                   required>
+                            <label for="od_<?= str_replace(':', '', $cas) ?>"
+                                   class="<?= $disabled ? 'disabled' : '' ?>">
+                                <?= $disabled ? '<i class="fa-solid fa-lock"></i> ' : '' ?>
+                                <?= $cas ?>
+                            </label>
                         <?php endforeach; ?>
                     </div>
                 </div>
@@ -201,11 +248,18 @@ $casy = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00'
                     </div>
                     <div class="time-grid">
                         <?php foreach ($casy as $cas): ?>
+                            <?php $disabled = in_array($cas, $obsazene_do); ?>
                             <input type="radio" name="cas_do"
                                    id="do_<?= str_replace(':', '', $cas) ?>"
                                    value="<?= $cas ?>"
-                                    <?= ($_POST['cas_do'] ?? '') === $cas ? 'checked' : '' ?> required>
-                            <label for="do_<?= str_replace(':', '', $cas) ?>"><?= $cas ?></label>
+                                    <?= ($_POST['cas_do'] ?? '') === $cas ? 'checked' : '' ?>
+                                    <?= $disabled ? 'disabled' : '' ?>
+                                   required>
+                            <label for="do_<?= str_replace(':', '', $cas) ?>"
+                                   class="<?= $disabled ? 'disabled' : '' ?>">
+                                <?= $disabled ? '<i class="fa-solid fa-lock"></i> ' : '' ?>
+                                <?= $cas ?>
+                            </label>
                         <?php endforeach; ?>
                     </div>
                 </div>
@@ -242,7 +296,7 @@ $casy = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00'
 </div>
 
 <script>
-    document.querySelector('form').addEventListener('submit', function(e) {
+    document.querySelector('form').addEventListener('submit', function (e) {
         let chyby = [];
 
         const sportoviste = document.querySelector('input[name="sportoviste_id"]:checked');

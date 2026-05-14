@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="auth-container">
     <div class="auth-box">
         <div class="logo"><span class="spot">Spot</span><span class="book">Book</span></div>
-        <div class="subtitle">Rezervační systém sportovišť</div>
+	<div class="subtitle">Rezervační systém sportovišť</div>
 
         <h2>Přihlášení</h2>
 
