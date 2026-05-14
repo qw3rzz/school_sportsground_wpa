@@ -108,7 +108,7 @@ if (!empty($_POST['datum']) && !empty($_POST['sportoviste_id'])) {
 </header>
 
 <nav>
-<<<<<<< HEAD
+
     <a href="index.php"><i class="fa-solid fa-house"></i> Domů</a>
     <a href="reservation.php"><i class="fa-solid fa-plus"></i> Nová rezervace</a>
     <a href="my_reservations.php"><i class="fa-solid fa-list"></i> Moje rezervace</a>
@@ -117,7 +117,7 @@ if (!empty($_POST['datum']) && !empty($_POST['sportoviste_id'])) {
     <?php endif; ?>
     <a href="logout.php"><i class="fa-solid fa-right-from-bracket"></i> Odhlásit se</a>
     <a href="reset_passwd.php"><i class="fa-solid fa-right-from-bracket"></i> Resetovat heslo</a>
-=======
+
     <div class="nav-left">
         <a href="index.php"><i class="fa-solid fa-house"></i> Domů</a>
         <a href="reservation.php"><i class="fa-solid fa-plus"></i> Nová rezervace</a>
@@ -131,7 +131,7 @@ if (!empty($_POST['datum']) && !empty($_POST['sportoviste_id'])) {
             <i class="fa-solid fa-right-from-bracket"></i> Odhlásit se
         </a>
     </div>
->>>>>>> 039e7b675519b4fe63d74d8acc3416a9a9de5ffe
+
 </nav>
 
 <div class="container">
